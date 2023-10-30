@@ -1,0 +1,48 @@
+using System.Net;
+using Catalog.Host.Models.Requests;
+using Catalog.Host.Models.Response;
+using Catalog.Host.Services.Interfaces;
+using Infrastructure;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Catalog.Host.Controllers;
+
+[ApiController]
+[Route(ComponentDefaults.DefaultRoute)]
+public class CatalogItemController : ControllerBase
+{
+    private readonly ILogger<CatalogItemController> _logger;
+    private readonly ICatalogItemService _catalogItemService;
+
+    public CatalogItemController(
+        ILogger<CatalogItemController> logger,
+        ICatalogItemService catalogItemService)
+    {
+        _logger = logger;
+        _catalogItemService = catalogItemService;
+    }
+
+    [HttpPost]
+    [ProducesResponseType(typeof(ItemResponse<int?>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Add(CreateProductRequest request)
+    {
+        var result = await _catalogItemService.Add(request.Name, request.Description, request.Price, request.AvailableStock, request.CatalogBrandId, request.CatalogTypeId, request.PictureFileName);
+        return Ok(new ItemResponse<int?>() { Id = result });
+    }
+
+    [HttpDelete]
+    [ProducesResponseType(typeof(ItemResponse<int?>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Delete(int itemId)
+    {
+        var result = await _catalogItemService.Delete(itemId);
+        return Ok();
+    }
+
+    [HttpPut]
+    [ProducesResponseType(typeof(ItemResponse<int?>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Update(int id, CreateProductRequest request)
+    {
+        var result = await _catalogItemService.Update(id, request.Name, request.Description, request.Price, request.AvailableStock, request.CatalogBrandId, request.CatalogTypeId, request.PictureFileName);
+        return Ok();
+    }
+}

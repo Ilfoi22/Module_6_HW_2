@@ -1,13 +1,11 @@
 ﻿using Catalog.Host.Data.Entities;
 using Catalog.Host.Data;
-using Catalog.Host.Repositories;
-using Catalog.Host.Services.Interfaces;
 using Catalog.Host.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Catalog.Host.Services.Interfaces;
 
 namespace Catalog.Host.Services
 {
-    public class CatalogTypeService : BaseDataService<ApplicationDbContext>, ICatalogTypeService
+    public class CatalogTypeService : BaseDataService<ApplicationDbContext>, ICatalogTypeRepository
     {
         private readonly ICatalogTypeRepository _catalogTypeRepository;
 
@@ -25,14 +23,16 @@ namespace Catalog.Host.Services
             return ExecuteSafeAsync(() => _catalogTypeRepository.Add(id, type));
         }
 
-        public Task<int?> Delete(int id)
+        public async Task<CatalogType?> DeleteAsync(int id)
         {
-            return ExecuteSafeAsync(() => _catalogTypeRepository?.Delete(id));
+            var result = await _catalogTypeRepository.DeleteAsync(id);
+            return result;
         }
 
-        public Task<bool> Update(int id, string type)
+        public async Task<CatalogType?> UpdateAsync(int id, string type)
         {
-            return ExecuteSafeAsync(() => _catalogTypeRepository.Update(id, type));
+            var result = await _catalogTypeRepository.UpdateAsync(id, type);
+            return result;
         }
     }
 }

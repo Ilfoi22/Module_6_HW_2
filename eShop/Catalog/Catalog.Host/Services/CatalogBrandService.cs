@@ -1,13 +1,12 @@
-﻿using Catalog.Host.Data;
+﻿using AutoMapper;
+using Catalog.Host.Data;
 using Catalog.Host.Data.Entities;
-using Catalog.Host.Repositories;
 using Catalog.Host.Repositories.Interfaces;
 using Catalog.Host.Services.Interfaces;
-using System.Xml.Linq;
 
 namespace Catalog.Host.Services
 {
-    public class CatalogBrandService : BaseDataService<ApplicationDbContext>, ICatalogBrandService
+    public class CatalogBrandService : BaseDataService<ApplicationDbContext>, ICatalogBrandRepository
     {
         private readonly ICatalogBrandRepository _catalogBrandRepository;
 
@@ -20,18 +19,21 @@ namespace Catalog.Host.Services
             _catalogBrandRepository = catalogBrandRepository;
         }
 
-        public Task<int?> Add(int id, string type)
+        public Task<int?> Add(int id, string brand)
         {
-            return ExecuteSafeAsync(() => _catalogBrandRepository.Add(id, type));
-        }
-        public Task<int?> Delete(int id)
-        {
-            return ExecuteSafeAsync(() => _catalogBrandRepository?.Delete(id));
+            return ExecuteSafeAsync(() => _catalogBrandRepository.Add(id, brand));
         }
 
-        public Task<bool> Update(int id, string type)
+        public async Task<CatalogBrand?> DeleteAsync(int id)
         {
-            return ExecuteSafeAsync(() => _catalogBrandRepository.Update(id, type));
+            var result = await _catalogBrandRepository.DeleteAsync(id);
+            return result;
+        }
+
+        public async Task<CatalogBrand?> UpdateAsync(int id, string brand)
+        {
+            var result = await _catalogBrandRepository.UpdateAsync(id, brand);
+            return result;
         }
     }
 }

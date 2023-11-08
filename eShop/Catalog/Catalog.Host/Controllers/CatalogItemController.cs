@@ -1,6 +1,7 @@
 using System.Net;
 using Catalog.Host.Models.Requests;
 using Catalog.Host.Models.Response;
+using Catalog.Host.Services;
 using Catalog.Host.Services.Interfaces;
 using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -23,26 +24,36 @@ public class CatalogItemController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(ItemResponse<int?>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(AddItemResponse<int?>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> Add(CreateProductRequest request)
     {
         var result = await _catalogItemService.Add(request.Name, request.Description, request.Price, request.AvailableStock, request.CatalogBrandId, request.CatalogTypeId, request.PictureFileName);
-        return Ok(new ItemResponse<int?>() { Id = result });
+        return Ok(new AddItemResponse<int?>() { Id = result });
     }
 
     [HttpDelete]
-    [ProducesResponseType(typeof(ItemResponse<int?>), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> Delete(int itemId)
+    public async Task<IActionResult> Delete(int id)
     {
-        var result = await _catalogItemService.Delete(itemId);
-        return Ok();
+        var result = await _catalogItemService.DeleteAsync(id);
+
+        if (result is null)
+        {
+            return NoContent();
+        }
+
+        return Ok(result);
     }
 
     [HttpPut]
-    [ProducesResponseType(typeof(ItemResponse<int?>), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> Update(int id, CreateProductRequest request)
+    public async Task<IActionResult> Update(int id, string name, string description, decimal price, int availableStock, int catalogBrandId, int catalogTypeId, string pictureFileName)
     {
-        var result = await _catalogItemService.Update(id, request.Name, request.Description, request.Price, request.AvailableStock, request.CatalogBrandId, request.CatalogTypeId, request.PictureFileName);
-        return Ok();
+        var result = await _catalogItemService.UpdateAsync(id, name, description, price, availableStock, catalogBrandId, catalogTypeId, pictureFileName);
+
+        if (result is null)
+        {
+            return NoContent();
+        }
+
+        return Ok(result);
     }
 }

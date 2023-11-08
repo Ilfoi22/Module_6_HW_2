@@ -1,19 +1,18 @@
 ﻿using Catalog.Host.Data.Entities;
 using Catalog.Host.Data;
-using Catalog.Host.Repositories.Interfaces;
 using Catalog.Host.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Catalog.Host.Repositories.Interfaces;
 
 namespace Catalog.Host.Repositories
 {
     public class CatalogTypeRepository : ICatalogTypeRepository
     {
         private readonly ApplicationDbContext _dbContext;
-        private readonly ILogger<ICatalogTypeRepository> _logger;
+        private readonly ILogger<CatalogTypeRepository> _logger;
 
         public CatalogTypeRepository(
             IDbContextWrapper<ApplicationDbContext> dbContextWrapper,
-            ILogger<ICatalogTypeRepository> logger)
+            ILogger<CatalogTypeRepository> logger)
         {
             _dbContext = dbContextWrapper.DbContext;
             _logger = logger;
@@ -32,42 +31,37 @@ namespace Catalog.Host.Repositories
             return item.Entity.Id;
         }
 
-        public async Task<int?> Delete(int id)
+        public async Task<CatalogType?> DeleteAsync(int id)
         {
-            var existingItem = await GetByIdAsync(id);
+            var item = await _dbContext.CatalogTypes.FindAsync(id);
 
-            if (existingItem == null)
+            if (item is null)
             {
                 return null;
             }
 
-            _dbContext.CatalogTypes.Remove(existingItem);
-
-            return await _dbContext.SaveChangesAsync();
-        }
-
-        public async Task<bool> Update(int id, string type)
-        {
-            var existingItem = await GetByIdAsync(id);
-
-            if (existingItem == null)
-            {
-                return false;
-            }
-
-            existingItem.Id = id;
-            existingItem.Type = type;
-
+            _dbContext.CatalogTypes.Remove(item);
             await _dbContext.SaveChangesAsync();
 
-            return true;
+            return item;
         }
 
-        public async Task<CatalogType> GetByIdAsync(int id)
+        public async Task<CatalogType?> UpdateAsync(int id, string type)
         {
-            return await _dbContext.CatalogTypes
-                .Where(i => i.Id == id)
-                .FirstOrDefaultAsync();
+            var catalogType = await _dbContext.CatalogTypes.FindAsync(id);
+
+            if (catalogType is null)
+            {
+                return null;
+            }
+
+            catalogType.Id = id;
+            catalogType.Type = type;
+
+            _dbContext.CatalogTypes.Update(catalogType);
+            await _dbContext.SaveChangesAsync();
+
+            return catalogType;
         }
     }
 }

@@ -2,8 +2,6 @@
 using Catalog.Host.Data.Entities;
 using Catalog.Host.Repositories.Interfaces;
 using Catalog.Host.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System.Xml.Linq;
 
 namespace Catalog.Host.Repositories
 {
@@ -33,42 +31,37 @@ namespace Catalog.Host.Repositories
             return item.Entity.Id;
         }
 
-        public async Task<int?> Delete(int itemId)
+        public async Task<CatalogBrand?> DeleteAsync(int id)
         {
-            var existingItem = await GetByIdAsync(itemId);
+            var item = await _dbContext.CatalogBrands.FindAsync(id);
 
-            if (existingItem == null)
+            if (item is null)
             {
                 return null;
             }
 
-            _dbContext.CatalogBrands.Remove(existingItem);
-
-            return await _dbContext.SaveChangesAsync();
-        }
-
-        public async Task<bool> Update(int id, string brand)
-        {
-            var existingItem = await GetByIdAsync(id);
-
-            if (existingItem == null)
-            {
-                return false;
-            }
-
-            existingItem.Id = id;
-            existingItem.Brand = brand;
-
+            _dbContext.CatalogBrands.Remove(item);
             await _dbContext.SaveChangesAsync();
 
-            return true;
+            return item;
         }
 
-        public async Task<CatalogBrand> GetByIdAsync(int id)
+        public async Task<CatalogBrand?> UpdateAsync(int id, string brand)
         {
-            return await _dbContext.CatalogBrands
-                .Where(i => i.Id == id)
-                .FirstOrDefaultAsync();
+            var catalogBrand = await _dbContext.CatalogBrands.FindAsync(id);
+
+            if (catalogBrand is null)
+            {
+                return null;
+            }
+
+            catalogBrand.Id = id;
+            catalogBrand.Brand = brand;
+
+            _dbContext.CatalogBrands.Update(catalogBrand);
+            await _dbContext.SaveChangesAsync();
+
+            return catalogBrand;
         }
     }
 }

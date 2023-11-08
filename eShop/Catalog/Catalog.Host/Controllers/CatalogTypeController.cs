@@ -1,5 +1,5 @@
-using Catalog.Host.Models.Dtos;
 using Catalog.Host.Models.Response;
+using Catalog.Host.Services;
 using Catalog.Host.Services.Interfaces;
 using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +11,11 @@ namespace Catalog.Host.Controllers;
 [Route(ComponentDefaults.DefaultRoute)]
 public class CatalogTypeController : ControllerBase
 {
-    private readonly ILogger<CatalogBrandController> _logger;
+    private readonly ILogger<CatalogTypeController> _logger;
     private readonly ICatalogTypeService _catalogTypeService;
 
     public CatalogTypeController(
-        ILogger<CatalogBrandController> logger,
+        ILogger<CatalogTypeController> logger,
         ICatalogTypeService catalogTypeService)
     {
         _logger = logger;
@@ -23,26 +23,36 @@ public class CatalogTypeController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(ItemResponse<int?>), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> Add(CatalogTypeDto request)
+    [ProducesResponseType(typeof(AddItemResponse<int?>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Add(int id, string type)
     {
-        var result = await _catalogTypeService.Add(request.Id, request.Type);
-        return Ok(new ItemResponse<int?>() { Id = result });
+        var result = await _catalogTypeService.Add(id, type);
+        return Ok(new AddItemResponse<int?>() { Id = result });
     }
 
     [HttpDelete]
-    [ProducesResponseType(typeof(ItemResponse<int?>), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> Delete(int itemId)
+    public async Task<IActionResult> Delete(int id)
     {
-        var result = await _catalogTypeService.Delete(itemId);
+        var result = await _catalogTypeService.DeleteAsync(id);
+
+        if (result is null)
+        {
+            return NoContent();
+        }
+
         return Ok(result);
     }
 
     [HttpPut]
-    [ProducesResponseType(typeof(ItemResponse<int?>), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> Update(CatalogTypeDto request)
+    public async Task<IActionResult> Update(int id, string type)
     {
-        var result = await _catalogTypeService.Update(request.Id, request.Type);
+        var result = await _catalogTypeService.UpdateAsync(id, type);
+
+        if (result is null)
+        {
+            return NoContent();
+        }
+
         return Ok(result);
     }
 }

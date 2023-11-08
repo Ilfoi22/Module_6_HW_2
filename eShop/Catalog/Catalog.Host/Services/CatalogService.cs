@@ -47,7 +47,7 @@ public class CatalogService : BaseDataService<ApplicationDbContext>, ICatalogSer
     {
         var catalogItem = await _catalogItemRepository.GetByIdAsync(id);
 
-        if (catalogItem != null)
+        if (catalogItem is not null)
         {
             return _mapper.Map<CatalogItemDto>(catalogItem);
         }
@@ -63,12 +63,26 @@ public class CatalogService : BaseDataService<ApplicationDbContext>, ICatalogSer
     {
         var catalogItem = await _catalogItemRepository.GetByBrandAsync(brandName);
 
-        if (catalogItem != null)
+        
+
+        if (catalogItem is not null)
         {
             return _mapper.Map<CatalogItemDto>(catalogItem);
         }
 
         return null;
+
+        //return await ExecuteSafeAsync(async () =>
+        //{
+        //    var result = await _catalogItemRepository.GetByPageAsync(pageIndex, pageSize);
+        //    return new PaginatedItemsResponse<CatalogItemDto>()
+        //    {
+        //        Count = result.TotalCount,
+        //        Data = result.Data.Select(s => _mapper.Map<CatalogItemDto>(s)).ToList(),
+        //        PageIndex = pageIndex,
+        //        PageSize = pageSize
+        //    };
+        //});
     }
 
     /*
@@ -79,7 +93,7 @@ public class CatalogService : BaseDataService<ApplicationDbContext>, ICatalogSer
     {
         var catalogItem = await _catalogItemRepository.GetByTypeAsync(type);
 
-        if (catalogItem != null)
+        if (catalogItem is not null)
         {
             return _mapper.Map<CatalogItemDto>(catalogItem);
         }
@@ -91,11 +105,11 @@ public class CatalogService : BaseDataService<ApplicationDbContext>, ICatalogSer
         Get Brands 
     */
 
-    public async Task<CatalogBrandDto> CatalogBrandBrandsAsync(string brandName)
+    public async Task<CatalogBrandDto> CatalogBrandsAsync(string brandName)
     {
         var catalogItem = await _catalogItemRepository.BrandsAsync(brandName);
 
-        if (catalogItem != null)
+        if (catalogItem is not null)
         {
             return _mapper.Map<CatalogBrandDto>(catalogItem);
         }
@@ -107,11 +121,11 @@ public class CatalogService : BaseDataService<ApplicationDbContext>, ICatalogSer
         Get Types 
     */
 
-    public async Task<CatalogTypeDto> CatalogTypeTypesAsync(string type)
+    public async Task<CatalogTypeDto> CatalogTypesAsync(string type)
     {
         var catalogItem = await _catalogItemRepository.TypesAsync(type);
 
-        if (catalogItem != null)
+        if (catalogItem is not null)
         {
             return _mapper.Map<CatalogTypeDto>(catalogItem);
         }

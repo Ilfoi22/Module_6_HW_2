@@ -3,6 +3,7 @@ using Catalog.Host.Data.Entities;
 using Catalog.Host.Repositories.Interfaces;
 using Catalog.Host.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Xml.Linq;
 
 namespace Catalog.Host.Repositories;
 
@@ -52,72 +53,41 @@ public class CatalogItemRepository : ICatalogItemRepository
         return item.Entity.Id;
     }
 
-    public async Task<int?> Delete(int itemId)
+    public async Task<CatalogItem?> DeleteAsync(int id)
     {
-        var existingItem = await GetByIdAsync(itemId);
+        var item = await _dbContext.CatalogItems.FindAsync(id);
 
-        if (existingItem == null)
+        if(item is null)
         {
             return null;
         }
 
-        _dbContext.CatalogItems.Remove(existingItem);
-
-        return await _dbContext.SaveChangesAsync();
-    }
-
-    public async Task<bool> Update(int id, string name, string description, decimal price, int availableStock, int catalogBrandId, int catalogTypeId, string pictureFileName)
-    {
-        var existingItem = await GetByIdAsync(id);
-
-        if (existingItem == null)
-            return false;
-
-        existingItem.Name = name;
-        existingItem.Description = description;
-        existingItem.Price = price;
-        existingItem.AvailableStock = availableStock;
-        existingItem.CatalogBrandId = catalogBrandId;
-        existingItem.CatalogTypeId = catalogTypeId;
-        existingItem.PictureFileName = pictureFileName;
-
+        _dbContext.CatalogItems.Remove(item);
         await _dbContext.SaveChangesAsync();
 
-        return true;
+        return item;
     }
 
-    public async Task<CatalogItem> GetByIdAsync(int id)
+    public async Task<CatalogItem?> UpdateAsync(int id, string name, string description, decimal price, int availableStock, int catalogBrandId, int catalogTypeId, string pictureFileName)
     {
-        return await _dbContext.CatalogItems
-            .Where(i => i.Id == id)
-            .FirstOrDefaultAsync();
-    }
+        var catalogItem = await _dbContext.CatalogItems.FindAsync(id);
 
-    public async Task<CatalogItem> GetByBrandAsync(string brandName)
-    {
-        return await _dbContext.CatalogItems
-            .Where(i => i.Name == brandName)
-            .FirstOrDefaultAsync();
-    }
+        if (catalogItem is null)
+        {
+            return null;
+        }
 
-    public async Task<CatalogItem> GetByTypeAsync(string type)
-    {
-        return await _dbContext.CatalogItems
-            .Where(i => i.CatalogType.Type == type)
-            .FirstOrDefaultAsync();
-    }
+        catalogItem.Name = name;
+        catalogItem.Description = description;
+        catalogItem.Price = price;
+        catalogItem.AvailableStock = availableStock;
+        catalogItem.CatalogBrandId = catalogBrandId;
+        catalogItem.CatalogTypeId = catalogTypeId;
+        catalogItem.PictureFileName = pictureFileName;
 
-    public async Task<CatalogBrand> BrandsAsync(string brandName)
-    {
-        return await _dbContext.CatalogBrands
-            .Where(b => b.Brand == brandName)
-            .FirstOrDefaultAsync();
-    }
-    
-    public async Task<CatalogType> TypesAsync(string type)
-    {
-        return await _dbContext.CatalogTypes
-            .Where(t => t.Type == type)
-            .FirstOrDefaultAsync();
+        _dbContext.CatalogItems.Update(catalogItem);
+        await _dbContext.SaveChangesAsync();
+
+        return catalogItem;
     }
 }

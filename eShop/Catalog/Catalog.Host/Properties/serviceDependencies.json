@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "postgresql1": {
+      "type": "postgresql",
+      "connectionId": "www.alevelwebsite.com",
+      "dynamicId": null
+    }
+  }
+}
